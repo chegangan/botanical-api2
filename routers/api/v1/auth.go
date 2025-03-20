@@ -35,7 +35,8 @@ func LoginUser(c *gin.Context) {
 		return
 	}
 
-	token, err := userService.LoginUser(user.Username, user.PasswordHash)
+	// 这里的passwordhash其实是用户输入的密码，是明文
+	token, err := userService.LoginUser(user.Phone, user.PasswordHash)
 	if err != nil {
 		app.Error(c, e.ErrorUserPasswordIncorrect, err.Error())
 		return

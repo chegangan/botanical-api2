@@ -2,6 +2,7 @@ package routers
 
 import (
 	"botanical-api2/middleware"
+	v1 "botanical-api2/routers/api/v1"
 	"botanical-api2/service"
 
 	"github.com/gin-gonic/gin"

@@ -41,20 +41,20 @@ func (repo *UserRepository) DeleteUser(id int) error {
 	return repo.DB.Where("id = ?", id).Delete(&models.User{}).Error
 }
 
-// CheckUserExist 检查用户名或手机号是否已存在
-func (repo *UserRepository) CheckUserExist(username, phone string) (bool, error) {
+// CheckPhoneExists 检查手机号是否已存在
+func (repo *UserRepository) CheckPhoneExists(phone string) (bool, error) {
 	var count int
 	err := repo.DB.Model(&models.User{}).
-		Where("username = ? OR (phone <> '' AND phone = ?)", username, phone).
+		Where("phone <> '' AND phone = ?", phone).
 		Count(&count).Error
 
 	return count > 0, err
 }
 
-// GetUserByUsername 根据用户名获取用户
-func (repo *UserRepository) GetUserByUsername(username string) (*models.User, error) {
+// GetUserByPhone 根据手机号获取用户
+func (repo *UserRepository) GetUserByPhone(phone string) (*models.User, error) {
 	var user models.User
-	err := repo.DB.Where("username = ?", username).First(&user).Error
+	err := repo.DB.Where("phone = ?", phone).First(&user).Error
 	if err != nil {
 		return nil, err
 	}

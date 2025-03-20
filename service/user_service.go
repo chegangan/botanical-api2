@@ -24,8 +24,8 @@ func NewUserService(db *gorm.DB) *UserService {
 
 // 修改RegisterUser方法，加密密码
 func (s *UserService) RegisterUser(user *models.User) error {
-	// 检查用户是否存在
-	exists, err := s.repo.CheckUserExist(user.Username, user.Phone)
+	// 检查用户手机号是否存在
+	exists, err := s.repo.CheckPhoneExists(user.Phone)
 	if err != nil {
 		return err
 	}
@@ -67,9 +67,9 @@ func (s *UserService) DeleteUser(id int) error {
 	return s.repo.DeleteUser(id)
 }
 
-// 修改LoginUser方法，生成令牌
-func (s *UserService) LoginUser(username, password string) (string, error) {
-	user, err := s.repo.GetUserByUsername(username)
+// 生成令牌
+func (s *UserService) LoginUser(phone, password string) (string, error) {
+	user, err := s.repo.GetUserByPhone(phone)
 	if err != nil {
 		return "", err
 	}
@@ -87,7 +87,9 @@ func (s *UserService) LoginUser(username, password string) (string, error) {
 
 	// 更新用户的令牌和过期时间
 	user.Token = token
-	user.TokenExpireTime = time.Now().Add(time.Duration(setting.JwtExpireHours) * time.Hour)
+	var ExpireTime = time.Now().Add(time.Duration(setting.JwtExpireHours) * time.Hour)
+	user.TokenExpireTime = &ExpireTime
+	// 更新用户信息
 	err = s.repo.UpdateUser(user)
 	if err != nil {
 		return "", err
