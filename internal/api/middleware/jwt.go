@@ -1,10 +1,10 @@
 package middleware
 
 import (
+	"botanical-api2/internal/service"
 	"botanical-api2/pkg/app" // 添加这一行
 	"botanical-api2/pkg/e"   // 添加这一行
 	"botanical-api2/pkg/jwt"
-	"botanical-api2/service"
 	"strings"
 
 	"github.com/gin-gonic/gin"
