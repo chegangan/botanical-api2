@@ -11,6 +11,17 @@ import (
 )
 
 // GetUser 获取用户
+// @Summary 获取用户信息
+// @Description 根据用户ID获取用户的详细信息
+// @Tags 用户管理
+// @Accept json
+// @Produce json
+// @Param id path int true "用户ID"
+// @Success 200 {object} app.Response{data=models.User} "操作成功"
+// @Failure 400 {object} app.Response{data=string} "请求参数错误"
+// @Failure 10001 {object} app.Response{data=string} "用户不存在"
+// @Security ApiKeyAuth
+// @Router /users/{id} [get]
 func (h *Handler) GetUser(c *gin.Context) {
 	idStr := c.Param("id")
 	// 字符串转整数
@@ -29,6 +40,17 @@ func (h *Handler) GetUser(c *gin.Context) {
 }
 
 // CreateUser 创建用户
+// @Summary 创建新用户
+// @Description 创建一个新的用户账号并返回用户信息
+// @Tags 用户管理
+// @Accept json
+// @Produce json
+// @Param user body models.User true "用户信息"
+// @Success 200 {object} app.Response{data=map[string]interface{}} "操作成功"
+// @Failure 400 {object} app.Response{data=string} "请求参数错误"
+// @Failure 10003 {object} app.Response{data=string} "创建用户失败"
+// @Security ApiKeyAuth
+// @Router /users [post]
 func (h *Handler) CreateUser(c *gin.Context) {
 	var user models.User
 	if err := c.ShouldBindJSON(&user); err != nil {
@@ -48,6 +70,19 @@ func (h *Handler) CreateUser(c *gin.Context) {
 }
 
 // UpdateUser 更新用户
+// @Summary 更新用户信息
+// @Description 根据用户ID更新用户信息，支持部分字段更新
+// @Tags 用户管理
+// @Accept json
+// @Produce json
+// @Param id path int true "用户ID"
+// @Param user body map[string]interface{} true "要更新的用户字段"
+// @Success 200 {object} app.Response{data=map[string]interface{}} "操作成功"
+// @Failure 400 {object} app.Response{data=string} "请求参数错误"
+// @Failure 10001 {object} app.Response{data=string} "用户不存在"
+// @Failure 10004 {object} app.Response{data=string} "更新用户失败"
+// @Security ApiKeyAuth
+// @Router /users/{id} [put]
 func (h *Handler) UpdateUser(c *gin.Context) {
 	idStr := c.Param("id")
 	// 字符串转整数
@@ -83,6 +118,17 @@ func (h *Handler) UpdateUser(c *gin.Context) {
 }
 
 // DeleteUser 删除用户
+// @Summary 删除用户
+// @Description 根据用户ID删除指定用户
+// @Tags 用户管理
+// @Accept json
+// @Produce json
+// @Param id path int true "用户ID"
+// @Success 200 {object} app.Response{data=map[string]interface{}} "操作成功"
+// @Failure 400 {object} app.Response{data=string} "请求参数错误"
+// @Failure 10005 {object} app.Response{data=string} "删除用户失败"
+// @Security ApiKeyAuth
+// @Router /users/{id} [delete]
 func (h *Handler) DeleteUser(c *gin.Context) {
 	idStr := c.Param("id")
 	// 字符串转整数
@@ -102,6 +148,19 @@ func (h *Handler) DeleteUser(c *gin.Context) {
 }
 
 // ChangePassword 修改用户密码
+// @Summary 修改用户密码
+// @Description 修改指定用户的登录密码，需要验证原密码
+// @Tags 用户管理
+// @Accept json
+// @Produce json
+// @Param id path int true "用户ID"
+// @Param request body dto.PasswordChangeRequest true "密码修改信息"
+// @Success 200 {object} app.Response{data=map[string]interface{}} "操作成功"
+// @Failure 400 {object} app.Response{data=string} "请求参数错误"
+// @Failure 10004 {object} app.Response{data=string} "更新用户失败"
+// @Failure 10007 {object} app.Response{data=string} "未授权访问"
+// @Security ApiKeyAuth
+// @Router /users/{id}/password [put]
 func (h *Handler) ChangePassword(c *gin.Context) {
 	// 获取用户ID
 	idStr := c.Param("id")

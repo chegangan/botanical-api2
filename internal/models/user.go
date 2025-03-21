@@ -4,18 +4,18 @@ import (
 	"time"
 )
 
-// User 用户表模型
+// User 用户模型
+// @Description 用户数据库模型
 type User struct {
-	ID              int        `gorm:"primary_key;auto_increment;unique" json:"id"`
-	Username        string     `gorm:"size:50;not null;default:'user'" json:"username"`
-	Phone           string     `gorm:"size:20" json:"phone" binding:"omitempty"`
-	PasswordHash    string     `gorm:"size:255;not null" json:"-"` // json中使用'-'忽略此字段，不返回给前端
-	Token           string     `gorm:"size:255" json:"-"`
-	TokenExpireTime *time.Time `gorm:"" json:"-"`
-	UserStatus      int8       `gorm:"default:1" json:"user_status" example:"1"` // 0-禁用,1-正常,2-待验证
-	UserRole        int8       `gorm:"default:1" json:"user_role" example:"1"`   // 1-普通用户,2-VIP会员,9-管理员
-	CreatedAt       time.Time  `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
-	UpdatedAt       time.Time  `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
+	ID              int        `json:"id" gorm:"primary_key" example:"1"`                          // 用户ID
+	Username        string     `json:"username" gorm:"size:50;not null" example:"zhangsan"`        // 用户名称
+	Phone           string     `json:"phone" gorm:"size:20;unique;not null" example:"13800138000"` // 手机号码
+	PasswordHash    string     `json:"-" gorm:"size:100;not null"`                                 // 密码哈希(不返回给前端)
+	UserRole        int8       `json:"user_role" gorm:"default:1" example:"1"`                     // 用户角色
+	Token           string     `json:"-" gorm:"size:500"`                                          // JWT令牌(不返回给前端)
+	TokenExpireTime *time.Time `json:"-"`                                                          // 令牌过期时间(不返回给前端)
+	CreatedAt       time.Time  `json:"created_at"`                                                 // 创建时间
+	UpdatedAt       time.Time  `json:"updated_at"`                                                 // 更新时间
 }
 
 // TableName 设置表名

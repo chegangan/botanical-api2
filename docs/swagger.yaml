@@ -1,0 +1,510 @@
+basePath: /api/v1
+definitions:
+  app.Response:
+    description: API统一响应格式
+    properties:
+      code:
+        description: 状态码
+        example: 200
+        type: integer
+      data:
+        description: 数据
+      message:
+        description: 消息
+        example: 操作成功
+        type: string
+    type: object
+  dto.AuthResponse:
+    description: 认证成功的响应数据
+    properties:
+      token:
+        description: JWT令牌
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        type: string
+      user:
+        allOf:
+        - $ref: '#/definitions/dto.UserSummary'
+        description: 用户信息摘要
+    type: object
+  dto.LoginRequest:
+    description: 用户登录的请求参数
+    properties:
+      password:
+        description: 用户密码
+        example: Password123
+        type: string
+      phone:
+        description: 用户手机号
+        example: "13800138000"
+        type: string
+    required:
+    - password
+    - phone
+    type: object
+  dto.PasswordChangeRequest:
+    description: 修改密码的请求参数
+    properties:
+      new_password:
+        description: 新密码
+        example: NewPass456
+        maxLength: 20
+        minLength: 6
+        type: string
+      old_password:
+        description: 原密码
+        example: OldPass123
+        maxLength: 20
+        minLength: 6
+        type: string
+    required:
+    - new_password
+    - old_password
+    type: object
+  dto.RegisterRequest:
+    description: 用户注册的请求参数
+    properties:
+      password:
+        description: 用户密码
+        example: Password123
+        maxLength: 20
+        minLength: 6
+        type: string
+      phone:
+        description: 用户手机号
+        example: "13800138000"
+        type: string
+      username:
+        description: 用户名称
+        example: zhangsan
+        type: string
+    required:
+    - password
+    - phone
+    - username
+    type: object
+  dto.UserSummary:
+    description: 用户基本信息，不包含敏感字段
+    properties:
+      id:
+        description: 用户ID
+        example: 1
+        type: integer
+      phone:
+        description: 用户手机号
+        example: "13800138000"
+        type: string
+      user_role:
+        description: 用户角色(1:普通用户,9:管理员)
+        example: 1
+        type: integer
+      username:
+        description: 用户名称
+        example: zhangsan
+        type: string
+    type: object
+  models.User:
+    description: 用户数据库模型
+    properties:
+      created_at:
+        description: 创建时间
+        type: string
+      id:
+        description: 用户ID
+        example: 1
+        type: integer
+      phone:
+        description: 手机号码
+        example: "13800138000"
+        type: string
+      updated_at:
+        description: 更新时间
+        type: string
+      user_role:
+        description: 用户角色
+        example: 1
+        type: integer
+      username:
+        description: 用户名称
+        example: zhangsan
+        type: string
+    type: object
+host: localhost:8000
+info:
+  contact:
+    email: your-email@example.com
+    name: API Support
+  description: 植物管理系统API服务
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: http://swagger.io/terms/
+  title: Botanical API
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: 验证用户凭据并返回访问令牌
+      parameters:
+      - description: 登录凭据
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 登录成功，返回用户信息和令牌
+          schema:
+            allOf:
+            - $ref: '#/definitions/app.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.AuthResponse'
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            allOf:
+            - $ref: '#/definitions/app.Response'
+            - properties:
+                data:
+                  type: string
+              type: object
+        "10006":
+          description: 用户名或密码不正确
+          schema:
+            allOf:
+            - $ref: '#/definitions/app.Response'
+            - properties:
+                data:
+                  type: string
+              type: object
+      summary: 用户登录
+      tags:
+      - 认证管理
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: 创建新用户账号并返回用户信息和访问令牌
+      parameters:
+      - description: 用户注册信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 注册成功，返回用户信息和令牌
+          schema:
+            allOf:
+            - $ref: '#/definitions/app.Response'
+            - properties:
+                data:
+                  additionalProperties: true
+                  type: object
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            allOf:
+            - $ref: '#/definitions/app.Response'
+            - properties:
+                data:
+                  type: string
+              type: object
+        "10002":
+          description: 用户已存在
+          schema:
+            allOf:
+            - $ref: '#/definitions/app.Response'
+            - properties:
+                data:
+                  type: string
+              type: object
+        "10003":
+          description: 创建用户失败
+          schema:
+            allOf:
+            - $ref: '#/definitions/app.Response'
+            - properties:
+                data:
+                  type: string
+              type: object
+      summary: 注册新用户
+      tags:
+      - 认证管理
+  /users:
+    post:
+      consumes:
+      - application/json
+      description: 创建一个新的用户账号并返回用户信息
+      parameters:
+      - description: 用户信息
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 操作成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/app.Response'
+            - properties:
+                data:
+                  additionalProperties: true
+                  type: object
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            allOf:
+            - $ref: '#/definitions/app.Response'
+            - properties:
+                data:
+                  type: string
+              type: object
+        "10003":
+          description: 创建用户失败
+          schema:
+            allOf:
+            - $ref: '#/definitions/app.Response'
+            - properties:
+                data:
+                  type: string
+              type: object
+      security:
+      - ApiKeyAuth: []
+      summary: 创建新用户
+      tags:
+      - 用户管理
+  /users/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 根据用户ID删除指定用户
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 操作成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/app.Response'
+            - properties:
+                data:
+                  additionalProperties: true
+                  type: object
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            allOf:
+            - $ref: '#/definitions/app.Response'
+            - properties:
+                data:
+                  type: string
+              type: object
+        "10005":
+          description: 删除用户失败
+          schema:
+            allOf:
+            - $ref: '#/definitions/app.Response'
+            - properties:
+                data:
+                  type: string
+              type: object
+      security:
+      - ApiKeyAuth: []
+      summary: 删除用户
+      tags:
+      - 用户管理
+    get:
+      consumes:
+      - application/json
+      description: 根据用户ID获取用户的详细信息
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 操作成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/app.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.User'
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            allOf:
+            - $ref: '#/definitions/app.Response'
+            - properties:
+                data:
+                  type: string
+              type: object
+        "10001":
+          description: 用户不存在
+          schema:
+            allOf:
+            - $ref: '#/definitions/app.Response'
+            - properties:
+                data:
+                  type: string
+              type: object
+      security:
+      - ApiKeyAuth: []
+      summary: 获取用户信息
+      tags:
+      - 用户管理
+    put:
+      consumes:
+      - application/json
+      description: 根据用户ID更新用户信息，支持部分字段更新
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 要更新的用户字段
+        in: body
+        name: user
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 操作成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/app.Response'
+            - properties:
+                data:
+                  additionalProperties: true
+                  type: object
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            allOf:
+            - $ref: '#/definitions/app.Response'
+            - properties:
+                data:
+                  type: string
+              type: object
+        "10001":
+          description: 用户不存在
+          schema:
+            allOf:
+            - $ref: '#/definitions/app.Response'
+            - properties:
+                data:
+                  type: string
+              type: object
+        "10004":
+          description: 更新用户失败
+          schema:
+            allOf:
+            - $ref: '#/definitions/app.Response'
+            - properties:
+                data:
+                  type: string
+              type: object
+      security:
+      - ApiKeyAuth: []
+      summary: 更新用户信息
+      tags:
+      - 用户管理
+  /users/{id}/password:
+    put:
+      consumes:
+      - application/json
+      description: 修改指定用户的登录密码，需要验证原密码
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 密码修改信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.PasswordChangeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 操作成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/app.Response'
+            - properties:
+                data:
+                  additionalProperties: true
+                  type: object
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            allOf:
+            - $ref: '#/definitions/app.Response'
+            - properties:
+                data:
+                  type: string
+              type: object
+        "10004":
+          description: 更新用户失败
+          schema:
+            allOf:
+            - $ref: '#/definitions/app.Response'
+            - properties:
+                data:
+                  type: string
+              type: object
+        "10007":
+          description: 未授权访问
+          schema:
+            allOf:
+            - $ref: '#/definitions/app.Response'
+            - properties:
+                data:
+                  type: string
+              type: object
+      security:
+      - ApiKeyAuth: []
+      summary: 修改用户密码
+      tags:
+      - 用户管理
+schemes:
+- http
+swagger: "2.0"

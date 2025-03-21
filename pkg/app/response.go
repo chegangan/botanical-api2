@@ -8,10 +8,11 @@ import (
 )
 
 // Response 统一响应格式
+// @Description API统一响应格式
 type Response struct {
-	Code    int         `json:"code"`
-	Message string      `json:"message"`
-	Data    interface{} `json:"data"`
+	Code    int         `json:"code" example:"200"`     // 状态码
+	Message string      `json:"message" example:"操作成功"` // 消息
+	Data    interface{} `json:"data"`                   // 数据
 }
 
 // Success 响应成功
