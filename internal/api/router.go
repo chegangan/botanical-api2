@@ -15,6 +15,7 @@ import (
 /**
 使用swagger的命令
 swag init --parseDependency --parseInternal -g router.go --output ../../docs
+http://localhost:8000/swagger/index.html
 */
 
 // @title Botanical API
