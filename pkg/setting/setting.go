@@ -2,6 +2,7 @@ package setting
 
 import (
 	"log"
+	"os"
 	"time"
 
 	"github.com/go-ini/ini"
@@ -33,10 +34,27 @@ var (
 )
 
 func init() {
-	var err error
-	Cfg, err = ini.Load("../../configs/app.ini")
-	if err != nil {
-		log.Fatalf("Fail to parse 'conf/app.ini': %v", err)
+	// 尝试多个可能的路径
+	configPaths := []string{
+		"configs/app.ini",       // 相对于exe的同级configs目录
+		"../../configs/app.ini", // 原来的路径
+		"../configs/app.ini",    // 其他可能的路径
+	}
+
+	var loaded bool
+	for _, path := range configPaths {
+		if _, err := os.Stat(path); err == nil {
+			Cfg, err = ini.Load(path)
+			if err == nil {
+				log.Printf("成功加载配置文件: %s", path)
+				loaded = true
+				break
+			}
+		}
+	}
+
+	if !loaded {
+		log.Fatalf("无法找到配置文件，尝试的路径: %v", configPaths)
 	}
 
 	LoadBase()
