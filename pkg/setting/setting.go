@@ -3,6 +3,7 @@ package setting
 import (
 	"log"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/go-ini/ini"
@@ -31,6 +32,10 @@ var (
 
 	JwtSecret      string
 	JwtExpireHours int
+
+	// 图片上传设置
+	UploadPath   string
+	ServerDomain string
 )
 
 func init() {
@@ -62,6 +67,7 @@ func init() {
 	LoadApp()
 	LoadDatabase()
 	LoadJWT()
+	LoadUpload()
 }
 
 // LoadBase reads base configurations from the ini file
@@ -112,4 +118,23 @@ func LoadJWT() {
 
 	JwtSecret = sec.Key("JWT_SECRET").MustString("!@)*#)!@U#@*!@!)")
 	JwtExpireHours = sec.Key("JWT_EXPIRE_HOURS").MustInt(24)
+}
+
+// LoadUpload 读取上传相关配置
+func LoadUpload() {
+	sec, err := Cfg.GetSection("upload")
+	if err != nil {
+		log.Fatalf("无法获取上传配置: %v", err)
+	}
+
+	UploadPath = sec.Key("UPLOAD_PATH").MustString("./uploads")
+	ServerDomain = sec.Key("SERVER_DOMAIN").MustString("http://localhost:8000")
+
+	// 确保上传目录存在
+	if err := os.MkdirAll(filepath.Join(UploadPath, "avatars"), 0755); err != nil {
+		log.Fatalf("创建头像上传目录失败: %v", err)
+	}
+	if err := os.MkdirAll(filepath.Join(UploadPath, "pictures"), 0755); err != nil {
+		log.Fatalf("创建图片上传目录失败: %v", err)
+	}
 }

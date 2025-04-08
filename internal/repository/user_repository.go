@@ -24,7 +24,7 @@ func (repo *UserRepository) CreateUser(user *models.User) error {
 // GetUserByID 根据ID获取用户
 func (repo *UserRepository) GetUserByID(id int) (*models.User, error) {
 	var user models.User
-	err := repo.db.Where("id = ?", id).First(&user).Error // 使用小写字段
+	err := repo.db.Preload("Avatar").Where("id = ?", id).First(&user).Error // 添加Preload预加载头像
 	if err != nil {
 		return nil, err
 	}

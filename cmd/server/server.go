@@ -33,13 +33,10 @@ func NewServer() *Server {
 
 	// 创建仓库集合
 	repos := repository.NewRepositories(db)
-
-	// 创建服务
-	userService := service.NewUserService(repos.User)
-	services := service.NewServices(userService)
+	services := service.NewServices(repos)
 
 	// 设置路由
-	Handler := api.SetupHandler(services.User)
+	Handler := api.SetupHandler(services)
 
 	// 创建HTTP服务器
 	httpServer := &http.Server{

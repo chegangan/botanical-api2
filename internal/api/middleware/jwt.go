@@ -16,20 +16,18 @@ func JWTMiddleware(userService *service.UserService) gin.HandlerFunc {
 		// 获取Authorization头
 		tokenString := c.Request.Header.Get("Authorization")
 		if tokenString == "" {
-			app.Error(c, e.ErrorUserUnauthorized, "缺失Authorization头信息")
+			app.Error(c, e.ERROR_USER_NO_PERMISSION, "缺失Authorization头信息")
 			c.Abort()
 			return
 		}
 
 		// 移除Bearer前缀
-		if strings.HasPrefix(tokenString, "Bearer ") {
-			tokenString = strings.TrimPrefix(tokenString, "Bearer ")
-		}
+		tokenString = strings.TrimPrefix(tokenString, "Bearer ")
 
 		// 使用jwt包解析令牌
 		claims, err := jwt.ParseToken(tokenString)
 		if err != nil {
-			app.Error(c, e.ErrorUserUnauthorized, err.Error())
+			app.Error(c, e.ERROR_USER_NO_PERMISSION, err.Error())
 			c.Abort()
 			return
 		}
@@ -37,7 +35,7 @@ func JWTMiddleware(userService *service.UserService) gin.HandlerFunc {
 		// 获取用户信息
 		user, err := userService.GetUserByID(claims.ID)
 		if err != nil {
-			app.Error(c, e.ErrorUserNotFound, "用户不存在")
+			app.Error(c, e.ERROR_USER_NOT_FOUND, "用户不存在")
 			c.Abort()
 			return
 		}

@@ -16,7 +16,7 @@ import (
 // @Accept json
 // @Produce json
 // @Param request body dto.RegisterRequest true "用户注册信息"
-// @Success 200 {object} app.Response{data=map[string]interface{}} "注册成功，返回用户信息和令牌"
+// @SUCCESS 200 {object} app.Response{data=map[string]interface{}} "注册成功，返回用户信息和令牌"
 // @Failure 400 {object} app.Response{data=string} "请求参数错误"
 // @Failure 10002 {object} app.Response{data=string} "用户已存在"
 // @Failure 10003 {object} app.Response{data=string} "创建用户失败"
@@ -25,7 +25,7 @@ func (h *Handler) RegisterUser(c *gin.Context) {
 	// 使用DTO接收请求
 	var registerReq dto.RegisterRequest
 	if err := c.ShouldBindJSON(&registerReq); err != nil {
-		app.Error(c, e.ErrorInvalidParams, err.Error())
+		app.Error(c, e.BAD_REQUEST, err.Error())
 		return
 	}
 
@@ -38,7 +38,7 @@ func (h *Handler) RegisterUser(c *gin.Context) {
 
 	// 注册用户
 	if err := h.UserService.RegisterUser(user); err != nil {
-		app.Error(c, e.ErrorUserCreate, err.Error())
+		app.Error(c, e.ERROR_USER_CREATE_FAILED, err.Error())
 		return
 	}
 
@@ -46,7 +46,7 @@ func (h *Handler) RegisterUser(c *gin.Context) {
 	token, userInfo, err := h.UserService.LoginUser(registerReq.Phone, registerReq.Password)
 	if err != nil {
 		// 虽然注册成功，但令牌生成失败，返回用户信息但不返回令牌
-		app.Success(c, map[string]interface{}{
+		app.SUCCESS(c, map[string]interface{}{
 			"message": "用户注册成功，但无法生成令牌",
 			"user": dto.UserSummary{
 				ID:       user.ID,
@@ -69,7 +69,7 @@ func (h *Handler) RegisterUser(c *gin.Context) {
 		},
 	}
 
-	app.Success(c, map[string]interface{}{
+	app.SUCCESS(c, map[string]interface{}{
 		"message": "用户注册成功",
 		"token":   token,
 		"user":    response.User,
@@ -83,7 +83,7 @@ func (h *Handler) RegisterUser(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param request body dto.LoginRequest true "登录凭据"
-// @Success 200 {object} app.Response{data=dto.AuthResponse} "登录成功，返回用户信息和令牌"
+// @SUCCESS 200 {object} app.Response{data=dto.AuthResponse} "登录成功，返回用户信息和令牌"
 // @Failure 400 {object} app.Response{data=string} "请求参数错误"
 // @Failure 10006 {object} app.Response{data=string} "用户名或密码不正确"
 // @Router /auth/login [post]
@@ -91,14 +91,14 @@ func (h *Handler) LoginUser(c *gin.Context) {
 	// 使用DTO接收请求
 	var loginReq dto.LoginRequest
 	if err := c.ShouldBindJSON(&loginReq); err != nil {
-		app.Error(c, e.ErrorInvalidParams, err.Error())
+		app.Error(c, e.BAD_REQUEST, err.Error())
 		return
 	}
 
 	// 将请求中的password传给service层
 	token, userInfo, err := h.UserService.LoginUser(loginReq.Phone, loginReq.Password)
 	if err != nil {
-		app.Error(c, e.ErrorUserPasswordIncorrect, err.Error())
+		app.Error(c, e.ERROR_USER_PASSWORD_INCORRECT, err.Error())
 		return
 	}
 
@@ -113,5 +113,5 @@ func (h *Handler) LoginUser(c *gin.Context) {
 		},
 	}
 
-	app.Success(c, response)
+	app.SUCCESS(c, response)
 }

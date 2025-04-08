@@ -15,11 +15,11 @@ type Response struct {
 	Data    interface{} `json:"data"`                   // 数据
 }
 
-// Success 响应成功
-func Success(c *gin.Context, data interface{}) {
+// SUCCESS   响应成功
+func SUCCESS(c *gin.Context, data interface{}) {
 	c.JSON(http.StatusOK, Response{
-		Code:    e.Success,
-		Message: e.GetMsg(e.Success), // 使用统一的成功消息
+		Code:    e.SUCCESS,
+		Message: e.GetMsg(e.SUCCESS), // 使用统一的成功消息
 		Data:    data,
 	})
 }
@@ -48,11 +48,11 @@ func Error(c *gin.Context, code int, details string) {
 // 根据业务错误码获取适当的HTTP状态码
 func getHttpStatusByCode(code int) int {
 	switch code {
-	case e.ErrorInvalidParams:
+	case e.BAD_REQUEST:
 		return http.StatusBadRequest
-	case e.ErrorUserNotFound:
+	case e.ERROR_USER_NOT_FOUND:
 		return http.StatusNotFound
-	case e.ErrorUserUnauthorized:
+	case e.ERROR_USER_NO_PERMISSION:
 		return http.StatusUnauthorized
 	default:
 		if code >= 10000 { // 自定义业务错误码
